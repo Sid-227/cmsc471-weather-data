@@ -1,0 +1,16 @@
+# Keep this repository focused on the final website.
+# Everything at the workspace root is ignored unless included below.
+/*
+!/.gitignore
+!/README.md
+!/index.html
+!/css/
+!/js/
+!/data/
+
+# Local system/editor artifacts inside the included folders.
+.DS_Store
+__pycache__/
+*.pyc
+*.swp
+.env*

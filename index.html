@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Explore daily high temperatures at six US airport stations in 2017 with a linked timeline and histogram.">
+  <title>Weather, day by day · 2017 Weather Explorer</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#explorer">Skip to explorer</a>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="wordmark" href="#" aria-label="Weather Explorer home"><svg viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="6" />
+          <path d="M16 2v4m0 20v4M2 16h4m20 0h4M6 6l3 3m14 14 3 3M6 26l3-3M23 9l3-3" />
+        </svg> Weather Explorer</a>
+      <a href="#about">About the project <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">SIX AIRPORT STATIONS / JAN–SEP 2017</p>
+        <h1 id="page-title">Weather, <em>day by day.</em></h1>
+        <p class="intro-copy">A season is more than an average. Explore how daily highs change over time, then find the
+          days behind the distribution.</p>
+        <p class="scope"><span class="status-dot" aria-hidden="true"></span> NOAA weather observations <span
+            aria-hidden="true">·</span> Jan 1–Sep 17, 2017 <span aria-hidden="true">·</span> Fahrenheit</p>
+      </section>
+
+      <section id="explorer" aria-label="Interactive weather explorer">
+        <div id="load-status" class="load-status" role="status">Loading weather observations…</div>
+        <noscript>
+          <p class="error-message">Enable JavaScript to use the interactive charts. The project description and data
+            sources are available below.</p>
+        </noscript>
+        <div id="app" hidden>
+          <form id="controls" class="controls" aria-label="Choose station and date range">
+            <div class="field station-field"><label for="station">WEATHER STATION</label><select id="station"></select>
+            </div>
+            <div class="field"><label for="start-date">FROM</label><input type="date" id="start-date" min="2017-01-01"
+                max="2017-09-17" value="2017-01-01" required aria-describedby="date-error"></div>
+            <span class="date-arrow" aria-hidden="true">→</span>
+            <div class="field"><label for="end-date">TO</label><input type="date" id="end-date" min="2017-01-01"
+                max="2017-09-17" value="2017-09-17" required aria-describedby="date-error"></div>
+            <button id="reset" type="button" class="button button-reset"><span aria-hidden="true">↺</span> Reset
+              all</button>
+          </form>
+          <p id="date-error" class="error-message" role="alert" hidden></p>
+
+          <div class="explorer-heading">
+            <div>
+              <p class="eyebrow">NOW EXPLORING</p>
+              <h2 id="station-title">Baltimore · BWI</h2>
+              <p id="station-name" class="station-name"></p>
+            </div>
+            <div class="range-info">
+              <p id="range-label"></p>
+              <p id="coverage"></p>
+            </div>
+          </div>
+
+          <section class="chart-section" aria-labelledby="timeline-title">
+            <div class="chart-heading">
+              <h3 id="timeline-title"><span class="chart-number">01</span> See the daily pattern</h3><span
+                class="chart-key"><span class="line-key" aria-hidden="true"></span> Daily high</span>
+            </div>
+            <p class="chart-help" id="timeline-help">Drag across the chart to select dates. Move or resize your
+              selection to explore another period. Arrow keys inspect days when the chart is focused.</p>
+            <div id="timeline" class="chart"></div>
+          </section>
+
+          <section class="chart-section distribution-section" aria-labelledby="histogram-title">
+            <div class="chart-heading">
+              <h3 id="histogram-title"><span class="chart-number">02</span> Find the days behind the numbers</h3><span
+                id="period-badge" class="period-badge">260 observed days</span>
+            </div>
+            <p class="chart-help">Each bar counts days in a 10°F range. Select a bar to highlight those days above.</p>
+            <p id="empty-state" class="empty-message" role="status" hidden>No temperature was reported for this
+              interval. Choose a wider date range.</p>
+            <div id="histogram" class="chart"></div>
+            <div class="selection-strip">
+              <p id="selection-label" role="status">Select a bar to connect temperatures with dates.</p><button
+                id="clear-selection" type="button" class="text-button" disabled>Clear selection <span
+                  aria-hidden="true">×</span></button>
+            </div>
+          </section>
+
+          <div class="summary-row" aria-label="Selected period summary">
+            <div>
+              <p class="summary-label">MEAN DAILY HIGH</p>
+              <p class="summary-value" id="mean-value">—</p>
+            </div>
+            <div>
+              <p class="summary-label">DAYS AT OR ABOVE 90°F</p>
+              <p class="summary-value" id="hot-value">—</p>
+            </div>
+            <div>
+              <p class="summary-label">OBSERVATION COVERAGE</p>
+              <p class="summary-value" id="count-value">—</p>
+            </div>
+          </div>
+          <p id="details" class="detail-readout" aria-live="polite" aria-atomic="true">Hover a day or bar for details,
+            or use keyboard focus.</p>
+          <div class="exploration-note"><span class="note-mark" aria-hidden="true">↗</span>
+            <p><strong>Try a summer comparison.</strong> Set June 1–August 31, then switch between Phoenix and Seattle.
+              How much of each distribution falls above 90°F?</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="about-section" aria-labelledby="about-title">
+        <div class="section-intro">
+          <p class="eyebrow">BEHIND THE VISUALIZATION</p>
+          <h2 id="about-title">One question.<br>Two perspectives.</h2>
+          <p>How do daily highs vary across dates and places—and when did days in a particular temperature range occur?
+          </p>
+        </div>
+        <div class="about-content">
+          <article>
+            <h3>The observations</h3>
+            <p>This explorer uses the course-provided, transformed 2017 NOAA Global Historical Climatology Network daily
+              weather file. We selected six recognizable airport stations with nearly complete daily maximum
+              temperatures (<strong>TMAX, already in °F</strong>): Baltimore BWI, Chicago O’Hare, Denver International,
+              Miami International, Phoenix Sky Harbor, and Seattle–Tacoma.</p>
+            <p>The source has 416,937 records and covers January 1–September 21, not a full year. Our common window ends
+              September 17, the last valid high-temperature date at these six stations: <strong>1,560 station-day
+                records and 1,559 reported highs</strong>. Miami’s September 10 value is missing; it appears as a gap
+              and is excluded from counts and averages. These airport observations are not citywide averages or a
+              representative sample of national weather.</p>
+            <p><a href="data/weather-subset.csv" download>Download the exact subset (CSV) <span
+                  aria-hidden="true">↓</span></a></p>
+          </article>
+          <article>
+            <h3>Why these two views?</h3>
+            <p>The line chart reveals timing and day-to-day variation; the histogram reveals the frequency of
+              temperatures in the selected period. Date and temperature use position, while day counts use bar height
+              from zero. Fixed 10°F bins and shared temperature and count scales make station changes easier to compare.
+              Counts describe observed days; percentages use the number of reported highs as their denominator.</p>
+            <p>We considered a bubble plot, a map, and a multi-station overlay. The bubble plot repeats the labs’
+              structure; a map adds geography without answering the time/distribution question; overlapping station
+              lines add clutter. Two linked views keep exploration focused. The 90°F summary is an exploratory
+              threshold, not an official heat-warning criterion.</p>
+          </article>
+          <article>
+            <h3>Interactions and course connections</h3>
+            <ul class="prose-list">
+              <li><strong>Category I:</strong> date brushing and date inputs filter the histogram; station selection
+                updates both views; selecting a histogram bin links to its individual dates.</li>
+              <li><strong>Category II:</strong> tooltips reveal daily values and bin counts; persistent selection
+                highlights matching days. Clear selection and Reset all make exploration reversible.</li>
+            </ul>
+            <p>We reuse the labs’ SVG, scales, axes, data joins, CSV loading, and event patterns. Labs 4–5 show one
+              Gapminder bubble chart with a year slider and variable selectors. This project adds a time-series view,
+              aggregation into a histogram, date-range brushing, and linking from bins back to observations. Lecture 5’s
+              coordinated views and Lectures 3–4’s encoding principles guide the design.</p>
+          </article>
+
+          <article>
+            <h3>AI usage</h3>
+            <p>OpenAI Codex assisted with reviewing the assignment and course materials, auditing the dataset, proposing
+              this design, and implementing the website and checks. The team must review the code and results, explain
+              its own contributions, and update this disclosure to reflect any further assistance before submission.</p>
+          </article>
+          <article>
+            <h3>Sources & acknowledgments</h3>
+            <ul class="source-list">
+              <li>CMSC471 supplied <a href="data/weather.txt">weather variable documentation</a>
+                and <code>weather.csv</code>; NOAA <a
+                  href="https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt">GHCN-Daily documentation</a>. The
+                supplied transformed units take precedence over raw NOAA units.</li>
+              <li>CMSC471 Labs 0–5: web structure, SVG, scales, axes, joins, CSV loading, and tooltip/event patterns.
+              </li>
+              <li>CMSC471 Lectures 1–5: question-driven exploration, data preparation, visual encodings, and coordinated
+                interaction.</li>
+              <li>D3 v7.9.0: official <a href="https://d3js.org/d3-brush">brush</a>, <a
+                  href="https://d3js.org/d3-array/bin">binning</a>, and <a
+                  href="https://d3js.org/d3-shape/line">line</a> documentation. No third-party website template used.
+              </li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer><span>CMSC471 · Interactive Visualization · Assignment 1</span><a href="#page-title">Back to top ↑</a>
+    </footer>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+</body>
+
+</html>
